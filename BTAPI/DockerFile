@@ -1,0 +1,21 @@
+# Use the .NET Core SDK image to build the application
+FROM mcr.microsoft.com/dotnet/sdk:7.0 as build
+LABEL key="sirwagner44"
+
+# Set the working directory to the location of your project files
+WORKDIR /app/BTAPIv2
+
+# Copy the project file and restore dependencies
+COPY BTAPI/*.csproj ./
+RUN dotnet restore
+
+# Copy the rest of the application files
+COPY . ./
+RUN dotnet publish -c release -o out
+
+# Use the .NET Core runtime image to run the application
+FROM mcr.microsoft.com/dotnet/aspnet:7.0
+WORKDIR /app
+COPY --from=build /app/BTAPIv2/out .
+ENTRYPOINT ["dotnet", "BTAPI.dll"]
+
